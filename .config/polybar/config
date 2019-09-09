@@ -27,6 +27,16 @@ primary = #ffb52a
 secondary = #e60053
 alert = #bd2c40
 
+[bar/test]
+bottom = false
+modules-left = i3
+modules-right = filesystem date
+font-0 = fixed:pixelsize=10;1
+font-1 = unifont:fontformat=truetype:size=8:antialias=false;0
+font-2 = siji:pixelsize=10;1
+background = ${colors.background}
+foreground = ${colors.foreground}
+
 [bar/example]
 ;monitor = ${env:MONITOR:HDMI-1}
 width = 100%
