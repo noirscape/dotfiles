@@ -1,0 +1,3 @@
+https://bulbapedia.bulbagarden.net/w/skins/MonoBook/resources/newdesign.css
+https://bulbapedia.bulbagarden.net/w/skins/MonoBook/resources/customstyles.css
+https://bulbapedia.bulbagarden.net/w/skins/MonoBook/resources/adrow-styles.css
