@@ -1,0 +1,2 @@
+twitter.com##[aria-label="Timeline: Trending now"]:upward(3)
+twitter.com##[aria-label="Who to follow"]:upward(1)
