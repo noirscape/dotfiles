@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Danbooru wiki page copier
-// @version      3
+// @version      4
 // @match        *://danbooru.donmai.us/wiki_pages/*
 // @grant        GM.xmlHttpRequest
 // @require      https://openuserjs.org/src/libs/sizzle/GM_config.js
@@ -61,8 +61,9 @@ function CreateBooruPage (aEvent) {
                        "responseType": "json",
                        "onload": function(response) {
                           let jdata = response.response;
-                         	let destURL = `${gmcfg.get('booruDomain')}/wiki_pages/new?wiki_page[title]=${jdata.title}&wiki_page[body]=${jdata.body}&wiki_page[other_names_string]=${jdata.other_names.join(' ')}`;
-                          window.location = encodeURIComponent(destURL);
+		          let destArgs = encodeURIComponent(`wiki_page[title]=${jdata.title}&wiki_page[body]=${jdata.body}&wiki_page[other_names_string]=${jdata.other_names.join(' ')})`
+                          let destURL = `${gmcfg.get('booruDomain')}/wiki_pages/new?{destArgs}`;
+                          window.location = destURL;
     			}}
 	);
 }
