@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Danbooru wiki page copier
-// @version      7
+// @version      8
 // @match        *://danbooru.donmai.us/wiki_pages/*
 // @grant        GM.xmlHttpRequest
 // @require      https://openuserjs.org/src/libs/sizzle/GM_config.js
@@ -54,7 +54,9 @@ function OpenConfig(aEvent) {
 }
 
 function CreateBooruPage (aEvent) {
-  	var JSONpageURL = document.URL + '.json'
+    var documentURL = new URL(document.URL);
+    documentURL.search = '';
+    var JSONpageURL = documentURL.href + '.json';
     console.log(JSONpageURL);
     GM.xmlHttpRequest({"method": "GET",
                        "url": JSONpageURL,
