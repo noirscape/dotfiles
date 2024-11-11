@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Danbooru support script (wiki pages)
-// @version      9
+// @version      10
 // @match        *://danbooru.donmai.us/wiki_pages/*
 // @grant        GM.xmlHttpRequest
 // @require      https://openuserjs.org/src/libs/sizzle/GM_config.js
@@ -230,7 +230,7 @@ function CreateBURPage(aEvent) {
               'bulk_update_request[script]': burString,
               'bulk_update_request[reason]': `Automated BUR creation through userscript based on page: [[${tagName}]]`
           });
-          //window.location = url.toString();
+          window.location = url.toString();
           console.log(url.toString());
       } else {
           alert("No BUR for this page needed :)");
