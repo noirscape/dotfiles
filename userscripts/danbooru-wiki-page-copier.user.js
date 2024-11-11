@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Danbooru support script (wiki pages)
-// @version      10
+// @version      11
 // @match        *://danbooru.donmai.us/wiki_pages/*
 // @grant        GM.xmlHttpRequest
 // @require      https://openuserjs.org/src/libs/sizzle/GM_config.js
@@ -120,7 +120,7 @@ async function createBooruPageTask() {
       url = new URL(`${gmcfg.get('booruDomain')}/wiki_pages/${destData.id}/edit`);
       url.search = new URLSearchParams({
           'wiki_page[title]': jdata.title,
-          'wiki_page[body]': 'bogus',
+          'wiki_page[body]': jdata.body,
           'wiki_page[other_names_string]': jdata.other_names.join(' ')
       });
       // search parms will have to be filled by a receiving userscript.
