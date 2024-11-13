@@ -1,7 +1,8 @@
 // ==UserScript==
 // @name	 Personal support script (wiki pages)
-// @version  2
+// @version  3
 // @match    *://INSERT_DOMAIN/wiki_pages/*
+// @require  https://raw.githubusercontent.com/noirscape/dotfiles/refs/heads/master/userscripts/danbooru/common.js?v=3
 // @grant    none
 // ==/UserScript==
 
@@ -9,17 +10,14 @@
 // If you want to use this on your own danbooru instance, replace INSERT_DOMAIN with the domain name in both the grant and the text below
 // when making your own userscript.
 
-function getSlashNode() {
-    var slashNode = document.createElement('span');
-    slashNode.innerHTML = '/';
-    return slashNode;
-}
-
+// Footer logic
 document.getElementById("page-footer").appendChild(getSlashNode());
 var aNode = document.createElement('a');
 aNode.innerHTML = 'Wiki on Danbooru';
 aNode.setAttribute('href', window.location.toString().replace('dbooru.noirscape.dev', 'danbooru.donmai.us'));
 document.getElementById("page-footer").appendChild(aNode);
+
+// Post page logic
 
 // This is some receiver code for my wiki page copier.
 function fillFieldFromGetParam(node_name, get_param_name) {
