@@ -161,7 +161,7 @@ async function parseBURfromTag(tagName, sourceDomain, destinationDomain) {
         }
 
         let destinationCategory = destinationTagData.find(t => t.name == tag.name).category
-        if (destinationCategory != tag.category) {
+        if (category != null && destinationCategory == 0 && destinationCategory != tag.category) {
             burStrings.push(`category ${tag.name} -> ${category}`);
         }
     }
