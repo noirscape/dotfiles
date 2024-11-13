@@ -85,6 +85,25 @@ function addPostToolboxLink(ulNode, class_id, text, listener) {
     );
 }
 
+function addPostToolboxProgressBar(ulNode, class_id, min, max) {
+    var liNode = document.createElement('li');
+    var progressNode = document.createElement('progress');
+    progressNode.setAttribute('id', class_id);
+    progressNode.setAttribute('value', min);
+    progressNode.setAttribute('max', max);
+
+    liNode.appendChild(progressNode);
+    ulNode.appendChild(liNode);
+}
+
+function updateProgressBar(id, value) {
+    document.getElementById(id).setAttribute('value', value);
+}
+
+function deleteProgressBar(id) {
+    document.getElementById(id).remove();
+}   
+
 // BUR FUNCTIONALITY
 //
 // This function is used to parse a BUR from a tag on a booru; both scripts have some form of support for this.

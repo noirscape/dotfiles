@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name	 Personal support script (wiki pages)
-// @version  5
+// @version  6
 // @match    *://INSERT_DOMAIN/wiki_pages/*
-// @require  https://raw.githubusercontent.com/noirscape/dotfiles/refs/heads/master/userscripts/danbooru/common.js?v=5
+// @require  https://raw.githubusercontent.com/noirscape/dotfiles/refs/heads/master/userscripts/danbooru/common.js?v=6
 // @grant    GM.xmlHttpRequest
 // ==/UserScript==
 
@@ -33,15 +33,21 @@ async function createBURfromPostPage() {
 
     post_json = await makeRequest(windowURL.href + '.json');
 
-    tags = post_json.tag_string.split(' ');
+    let tags = post_json.tag_string.split(' ');
     let burString = '';
+
+    addPostToolboxProgressBar(document.getElementById('userscript').getElementsByTagName('li')[0], 'burprogress', 0, tags.length);
+    idx = 0;
     for (let tag of tags) {
-        tagBURString = await parseBURfromTag(tag, sourceDomain, destinationDomain);
+        let tagBURString = await parseBURfromTag(tag, sourceDomain, destinationDomain);
         if (tagBURString) {
             burString += tagBURString;
             burString += '\n';
         }
+        updateProgressBar('burprogress', idx);
+        idx++;
     }
+    deleteProgressBar('burprogress');
 
     return [burString, post_json];
 }
