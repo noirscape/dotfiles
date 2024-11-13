@@ -5,7 +5,7 @@
 // Request helper function
 //
 // Used in this file and in the scripts to hide a bunch of annoying JS stuff.
-// It's async and can only make GET calls.
+// It's async and can only make GET calls to return JSON.
 function makeRequest(url) {
     return new Promise((resolve, reject) => {
         console.log(url);
@@ -51,10 +51,44 @@ function addFooterLink(text, css_id, listener) {
   );
 }
 
+function setupPostToolbox() {
+    // create a new section
+    var sectionNode = document.createElement('section');
+    sectionNode.setAttribute('id', 'userscript');
+
+    // header it
+    var h2Node = document.createElement('h2');
+    h2Node.innerHTML = 'Userscript';
+    sectionNode.appendChild(h2Node);
+
+    // add the link list
+    var ulNode = document.createElement('ul');
+    sectionNode.appendChild(ulNode);
+
+    // add it to the sidebar
+    document.getElementById("sidebar").appendChild(sectionNode);
+
+    return ulNode; // return the ul node so we can add links to it
+}
+
+function addPostToolboxLink(ulNode, class_id, text, listener) {
+    var liNode = document.createElement('li');
+    var aNode = document.createElement('a');
+    aNode.innerHTML = text;
+    aNode.setAttribute('id', class_id);
+
+    liNode.appendChild(aNode);
+    ulNode.appendChild(liNode);
+
+    document.getElementById(class_id).addEventListener(
+        "click", listener, false
+    );
+}
+
 // BUR FUNCTIONALITY
 //
 // This function is used to parse a BUR from a tag on a booru; both scripts have some form of support for this.
-async function parseBURfromTag(tagName, currentDomain, destinationDomain) {
+async function parseBURfromTag(tagName, sourceDomain, destinationDomain) {
     // This function constructs all the BUR info to port a BUR from one end to another.
   
     // A BUR consists of the following actions:
@@ -64,19 +98,18 @@ async function parseBURfromTag(tagName, currentDomain, destinationDomain) {
   
     // In addition, the booru checks to prevent a BUR from being ran twice; the script prechecks if a BUR should exist.
     burStrings = []
-  
-    // alias code
-    let aliasData = await makeRequest(`https://${currentDomain}/tag_aliases.json?search[consequent_name]=${tagName}`);
-    let destinationAliases = await makeRequest(`https://${destinationDomain}/tag_aliases.json?search[consequent_name]=${tagName}`);
-  
+
     // required upfront check: the tag needs to exist.
-    console.log(`https://${destinationDomain}/tags.json?search[name]=${tagName}`);
     let existenceData = await makeRequest(`https://${destinationDomain}/tags.json?search[name]=${tagName}`);
     if (existenceData.length == 0 || existenceData.some(tag => tag.post_count == 0)) {
         // if the tag doesn't exist (either the destination doesn't know about it or has a post count of zero), then we return nothing.
         return "";
     }
-  
+
+    // alias code
+    let aliasData = await makeRequest(`https://${sourceDomain}/tag_aliases.json?search[consequent_name]=${tagName}`);
+    let destinationAliases = await makeRequest(`https://${destinationDomain}/tag_aliases.json?search[consequent_name]=${tagName}`);
+
     for (const alias of aliasData) {
         if (alias.status == 'deleted') {
             continue;
@@ -89,22 +122,24 @@ async function parseBURfromTag(tagName, currentDomain, destinationDomain) {
     }
   
     // implication code
-    let implicationData = await makeRequest(`https://${currentDomain}/tag_implications.json?search[antecedent_name]=${tagName}`);
+    let implicationData = await makeRequest(`https://${sourceDomain}/tag_implications.json?search[antecedent_name]=${tagName}`);
     let destinationImplications = await makeRequest(`https://${destinationDomain}/tag_implications.json?search[antecedent_name]=${tagName}`);
-  
+
     for (const implication of implicationData) {
         if (implication.is_deprecated == true) {
             continue;
         }
-  
+
         let implicationExists = destinationImplications.some(implication => implication.antecedent_name == implication.antecedent_name);
         if (!implicationExists) {
             burStrings.push(`imply ${implication.antecedent_name} -> ${implication.consequent_name}`);
         };
     }
-  
+
     // category code
-    let tagData = await makeRequest(`https://${currentDomain}/tags.json?search[name]=${tagName}`);
+    let tagData = await makeRequest(`https://${sourceDomain}/tags.json?search[name]=${tagName}`);
+    let destinationTagData = await makeRequest(`https://${destinationDomain}/tags.json?search[name]=${tagName}`);
+
     for (const tag of tagData) {
         let category = null;
         switch (tag.category) {
@@ -124,7 +159,9 @@ async function parseBURfromTag(tagName, currentDomain, destinationDomain) {
                 category = "meta";
                 break;
         }
-        if (category != null) {
+
+        let destinationCategory = destinationTagData.find(t => t.name == tag.name).category
+        if (destinationCategory != tag.category) {
             burStrings.push(`category ${tag.name} -> ${category}`);
         }
     }
