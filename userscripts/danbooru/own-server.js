@@ -57,7 +57,7 @@ function CreateBURPost(aEvent) {
                 'bulk_update_request[script]': burString,
                 'bulk_update_request[reason]': `Automated BUR creation through userscript based on post:\n\n* !post #${post_json.id}`
             });
-            // window.location = url.toString();
+            window.location = url.toString();
             console.log(url.toString());
         } else {
             alert("No BURs for this post are needed :)");
