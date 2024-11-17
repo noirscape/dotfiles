@@ -91,7 +91,7 @@ function CreateBURPost(aEvent) {
         if (burString) {
             var url = new URL(`https://${windowURL.hostname}/bulk_update_requests/new`);
             url.search = new URLSearchParams({
-                'bulk_update_request[forum_topic_id]': gmcfg.get('booruDomain'),
+                'bulk_update_request[forum_topic_id]': gmcfg.get('burTopic'),
                 'bulk_update_request[script]': burString,
                 'bulk_update_request[reason]': `Automated BUR creation through userscript based on post:\n\n* !post #${post_json.id}`
             });
