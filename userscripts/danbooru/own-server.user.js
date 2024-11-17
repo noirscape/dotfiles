@@ -3,6 +3,7 @@
 // @version  8
 // @require  https://raw.githubusercontent.com/noirscape/dotfiles/refs/heads/master/userscripts/danbooru/common.js?v=8
 // @require  https://openuserjs.org/src/libs/sizzle/GM_config.js
+// @match    *://userconfigured.invalid/*
 // @grant    GM_getValue
 // @grant    GM_setValue
 // @grant    GM.getValue
