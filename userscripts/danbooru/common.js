@@ -106,58 +106,54 @@ function deleteProgressBar(id) {
 
 // BUR FUNCTIONALITY
 //
-// This function is used to parse a BUR from a tag on a booru; both scripts have some form of support for this.
-async function parseBURfromTag(tagName, sourceDomain, destinationDomain) {
-    // This function constructs all the BUR info to port a BUR from one end to another.
-  
-    // A BUR consists of the following actions:
-    // - aliases
-    // - implications
-    // - categories
-  
-    // In addition, the booru checks to prevent a BUR from being ran twice; the script prechecks if a BUR should exist.
-    burStrings = []
+// This function is used to parse a BUR from a list of tags on a booru; both scripts have some form of support for this.
+// return a string with the BUR.
+async function parseBURfromTags(tagNames, sourceDomain, destinationDomain) {
+    let burString = '';
 
-    // required upfront check: the tag needs to exist.
-    let existenceData = await makeRequest(`https://${destinationDomain}/tags.json?search[name]=${tagName}`);
-    if (existenceData.length == 0 || existenceData.some(tag => tag.post_count == 0)) {
-        // if the tag doesn't exist (either the destination doesn't know about it or has a post count of zero), then we return nothing.
-        return "";
-    }
+    let existenceData = await makeRequest(`https://${destinationDomain}/tags.json?search[name_comma]=${tagNames.join(',')}`);
+    let existingTags = existenceData.filter(tag => tag.post_count > 0).map(tag => tag.name);
 
-    // alias code
-    let aliasData = await makeRequest(`https://${sourceDomain}/tag_aliases.json?search[consequent_name]=${tagName}`);
-    let destinationAliases = await makeRequest(`https://${destinationDomain}/tag_aliases.json?search[consequent_name]=${tagName}`);
+    let aliasData = await makeRequest(`https://${sourceDomain}/tag_aliases.json?search[consequent_name_comma]=${existingTags.join(',')}`);
+    let destinationAliases = await makeRequest(`https://${destinationDomain}/tag_aliases.json?search[consequent_name_comma]=${existingTags.join(',')}`);
 
     for (const alias of aliasData) {
         if (alias.status == 'deleted') {
             continue;
         }
-  
-        let aliasExists = destinationAliases.some(alias => alias.consequent_name == alias.consequent_name);
-        if (!aliasExists) {
-            burStrings.push(`alias ${alias.antecedent_name} -> ${alias.consequent_name}`);
-        };
-    }
-  
-    // implication code
-    let implicationData = await makeRequest(`https://${sourceDomain}/tag_implications.json?search[antecedent_name]=${tagName}`);
-    let destinationImplications = await makeRequest(`https://${destinationDomain}/tag_implications.json?search[antecedent_name]=${tagName}`);
+
+        for (const tag of existingTags) {
+            if (alias.consequent_name == tag) {
+                console.log("found alias for " + tag);
+                let aliasExists = destinationAliases.some(destAlias => destAlias.consequent_name == alias.consequent_name);
+                if (!aliasExists) {
+                    burString += `alias ${alias.antecedent_name} -> ${alias.consequent_name}\n`;
+                };
+            }
+        }
+   }
+
+    let implicationData = await makeRequest(`https://${sourceDomain}/tag_implications.json?search[antecedent_name_comma]=${existingTags.join(',')}`);
+    let destinationImplications = await makeRequest(`https://${destinationDomain}/tag_implications.json?search[antecedent_name_comma]=${existingTags.join(',')}`);
 
     for (const implication of implicationData) {
         if (implication.is_deprecated == true) {
             continue;
         }
 
-        let implicationExists = destinationImplications.some(implication => implication.antecedent_name == implication.antecedent_name);
-        if (!implicationExists) {
-            burStrings.push(`imply ${implication.antecedent_name} -> ${implication.consequent_name}`);
-        };
+        for (const tag of existingTags) {
+            if (implication.antecedent_name == tag) {
+                console.log("found implication for " + tag);
+                let implicationExists = destinationImplications.some(destImplication => destImplication.antecedent_name == implication.antecedent_name);
+                if (!implicationExists) {
+                    burString += `imply ${implication.antecedent_name} -> ${implication.consequent_name}\n`;
+                };
+            }
+        }
     }
 
-    // category code
-    let tagData = await makeRequest(`https://${sourceDomain}/tags.json?search[name]=${tagName}`);
-    let destinationTagData = await makeRequest(`https://${destinationDomain}/tags.json?search[name]=${tagName}`);
+    let tagData = await makeRequest(`https://${sourceDomain}/tags.json?search[name_comma]=${existingTags.join(',')}`);
+    let destinationTagData = await makeRequest(`https://${destinationDomain}/tags.json?search[name_comma]=${existingTags.join(',')}`);
 
     for (const tag of tagData) {
         let category = null;
@@ -181,9 +177,9 @@ async function parseBURfromTag(tagName, sourceDomain, destinationDomain) {
 
         let destinationCategory = destinationTagData.find(t => t.name == tag.name).category
         if (category != null && destinationCategory == 0 && destinationCategory != tag.category) {
-            burStrings.push(`category ${tag.name} -> ${category}`);
+            burString += `category ${tag.name} -> ${category}\n`;
         }
     }
-  
-    return burStrings.join("\n");
+
+    return burString;
 }

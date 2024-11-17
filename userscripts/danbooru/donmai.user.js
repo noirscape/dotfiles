@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name         Danbooru support script (2selfhosted)
-// @version      14
+// @version      15
 // @match        *://danbooru.donmai.us/*
 // @grant        GM.xmlHttpRequest
 // @require      https://openuserjs.org/src/libs/sizzle/GM_config.js
-// @require      https://raw.githubusercontent.com/noirscape/dotfiles/refs/heads/master/userscripts/danbooru/common.js?v=14
+// @require      https://raw.githubusercontent.com/noirscape/dotfiles/refs/heads/master/userscripts/danbooru/common.js?v=15
 // @grant        GM_getValue
 // @grant        GM_setValue
 // @grant        GM.getValue
@@ -98,7 +98,7 @@ function CreateBURPage(aEvent) {
   const currentDomain = windowURL.hostname;
   const destinationDomain = new URL(gmcfg.get('booruDomain')).hostname;
 
-  parseBURfromTag(tagName, currentDomain, destinationDomain).then(burString => {
+  parseBURfromTag([tagName], currentDomain, destinationDomain).then(burString => {
       if (burString) {
           var url = new URL(`${gmcfg.get('booruDomain')}/bulk_update_requests/new`);
           url.search = new URLSearchParams({

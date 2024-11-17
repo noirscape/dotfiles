@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name	 Personal support script (2selfhosted)
-// @version  8
-// @require  https://raw.githubusercontent.com/noirscape/dotfiles/refs/heads/master/userscripts/danbooru/common.js?v=8
+// @version  9
+// @require  https://raw.githubusercontent.com/noirscape/dotfiles/refs/heads/master/userscripts/danbooru/common.js?v=9
 // @require  https://openuserjs.org/src/libs/sizzle/GM_config.js
 // @match    *://userconfigured.invalid/*
 // @grant    GM_getValue
@@ -66,20 +66,7 @@ async function createBURfromPostPage() {
     post_json = await makeRequest(windowURL.href + '.json');
 
     let tags = post_json.tag_string.split(' ');
-    let burString = '';
-
-    addPostToolboxProgressBar(document.getElementById('userscript').getElementsByTagName('li')[0], 'burprogress', 0, tags.length);
-    idx = 0;
-    for (let tag of tags) {
-        let tagBURString = await parseBURfromTag(tag, sourceDomain, destinationDomain);
-        if (tagBURString) {
-            burString += tagBURString;
-            burString += '\n';
-        }
-        updateProgressBar('burprogress', idx);
-        idx++;
-    }
-    deleteProgressBar('burprogress');
+    let burString = await parseBURfromTags(tags, sourceDomain, destinationDomain);
 
     return [burString, post_json];
 }
