@@ -28,15 +28,19 @@ var gmcfg = new GM_config({
           'type': 'integer',
           'default': 0,
       },
+  },
+  "events": {
+      "init": onInit,
   }
 });
-gmcfg.init();
 GM.registerMenuCommand('Open support script settings', OpenConfig);
 
-// Footer logic
-if (window.location.pathname.startsWith('/wiki_pages')) {
-    addFooterLink('Clone page', 'wikicloner', CreateBooruPage);
-    addFooterLink('Clone BUR', 'burcloner', CreateBURPage);
+function onInit() {
+    // Footer logic
+    if (window.location.pathname.startsWith('/wiki_pages')) {
+        addFooterLink('Clone page', 'wikicloner', CreateBooruPage);
+        addFooterLink('Clone BUR', 'burcloner', CreateBURPage);
+    }
 }
 
 function OpenConfig() {

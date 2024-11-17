@@ -28,28 +28,33 @@ var gmcfg = new GM_config({
             'type': 'integer',
             'default': 0,
         },
+    },
+    "events": {
+        "init": onInit,
     }
 });
-gmcfg.init();
+
 GM.registerMenuCommand('Open support script settings', OpenConfig);
 
 function OpenConfig() {
     gmcfg.open();
 }
 
-// Footer logic
-if (window.location.pathname.startsWith('/wiki_pages')) {
-    document.getElementById("page-footer").appendChild(getSlashNode());
-    var aNode = document.createElement('a');
-    aNode.innerHTML = 'Wiki on Danbooru';
-    aNode.setAttribute('href', window.location.toString().replace(window.location.hostname, gmcfg.get('booruDomain')));
-    document.getElementById("page-footer").appendChild(aNode);
-}
+function onInit() {
+    // Footer logic
+    if (window.location.pathname.startsWith('/wiki_pages')) {
+        document.getElementById("page-footer").appendChild(getSlashNode());
+        var aNode = document.createElement('a');
+        aNode.innerHTML = 'Wiki on Danbooru';
+        aNode.setAttribute('href', window.location.toString().replace(window.location.hostname, gmcfg.get('booruDomain')));
+        document.getElementById("page-footer").appendChild(aNode);
+    }
 
-// Post page logic
-if (/^\/posts\/\d+$/.test(window.location.pathname)) {
-    let ulNode = setupPostToolbox();
-    addPostToolboxLink(ulNode, 'burcloner', 'Create BUR for tags', CreateBURPost);
+    // Post page logic
+    if (/^\/posts\/\d+$/.test(window.location.pathname)) {
+        let ulNode = setupPostToolbox();
+        addPostToolboxLink(ulNode, 'burcloner', 'Create BUR for tags', CreateBURPost);
+    }
 }
 
 async function createBURfromPostPage() {
