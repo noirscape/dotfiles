@@ -55,6 +55,12 @@ function onInit() {
         let ulNode = setupPostToolbox();
         addPostToolboxLink(ulNode, 'burcloner', 'Create BUR for tags', CreateBURPost);
     }
+
+    // Post list logic
+    if (/^\/posts$/.test(window.location.pathname)) {
+        let ulNode = setupPostToolbox();
+        addPostToolboxLink(ulNode, 'burcloner', 'Create BUR for tags', CreateBURPostList);
+    }
 }
 
 async function createBURfromPostPage() {
@@ -69,6 +75,55 @@ async function createBURfromPostPage() {
     let burString = await parseBURfromTags(tags, sourceDomain, destinationDomain);
 
     return [burString, post_json];
+}
+
+async function createBURfromPostList() {
+    let windowURL = new URL(window.location);
+    windowURL.pathname = windowURL.pathname + '.json';
+    const sourceDomain = 'danbooru.donmai.us';
+    const destinationDomain = windowURL.hostname;
+
+    post_json = await makeRequest(windowURL.href);
+
+    let tags = { };
+    for (const post of post_json) {
+        split_tags = post.tag_string.split(' ');
+        for (const tag of split_tags) {
+            tags[tag] = true;
+        }
+    }
+
+    console.log(tags);
+
+    let burString = await parseBURfromTags(Object.keys(tags), sourceDomain, destinationDomain);
+    return [burString, post_json];
+}
+
+function generatePostListGallery(post_json) {
+    retString = '';
+    for (const post of post_json) {
+        retString += `* !post #${post.id}\n`;
+    }
+    return retString;
+}
+
+function CreateBURPostList(aEvent) {
+    let windowURL = new URL(window.location);
+
+    createBURfromPostList().then(([burString, post_json]) => {
+        if (burString) {
+            var url = new URL(`https://${windowURL.hostname}/bulk_update_requests/new`);
+            url.search = new URLSearchParams({
+                'bulk_update_request[forum_topic_id]': gmcfg.get('burTopic'),
+                'bulk_update_request[script]': burString,
+                'bulk_update_request[reason]': `Automated BUR creation through userscript based on post:\n\n${generatePostListGallery(post_json)}`,
+            });
+            window.location = url.toString();
+            console.log(url.toString());
+        } else {
+            alert("No BURs for this post are needed :)");
+        }
+    })
 }
 
 function CreateBURPost(aEvent) {
