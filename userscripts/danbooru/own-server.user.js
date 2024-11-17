@@ -1,20 +1,43 @@
 // ==UserScript==
-// @name	 Personal support script (wiki pages)
-// @version  6
-// @require  https://raw.githubusercontent.com/noirscape/dotfiles/refs/heads/master/userscripts/danbooru/common.js?v=6
+// @name	 Personal support script (2selfhosted)
+// @version  8
+// @require  https://raw.githubusercontent.com/noirscape/dotfiles/refs/heads/master/userscripts/danbooru/common.js?v=8
+// @require  https://openuserjs.org/src/libs/sizzle/GM_config.js
+// @grant    GM_getValue
+// @grant    GM_setValue
+// @grant    GM.getValue
+// @grant    GM.setValue
 // @grant    GM.xmlHttpRequest
+// @grant    GM.registerMenuCommand
 // ==/UserScript==
 
-// This userscript is not designed to be generally installed (hence the lack of a .user.js).
-// If you want to use this on your own danbooru instance, replace INSERT_DOMAIN with the domain name in both the grant and the text below
-// when making your own userscript.
-
+// This userscript is not designed to be generally installed. You need to add an @grant in your userscript manager 
+// settings for the domain you're running it on.
+var gmcfg = new GM_config({
+    "id": "DanbooruWikiPageCopierClient",
+    "title": "Danbooru support script (2selfhosted)",
+    "fields": {
+        "booruDomain": {
+            'label': 'Upstream Domain',
+            'type': 'text',
+            'default': 'danbooru.donmai.us',
+        },
+        "burTopic": {
+            'label': 'BUR Topic (0 to not use)',
+            'type': 'integer',
+            'default': 0,
+        },
+    }
+});
+gmcfg.init();
+GM.registerMenuCommand('Open support script settings', OpenConfig);
+  
 // Footer logic
 if (window.location.pathname.startsWith('/wiki_pages')) {
     document.getElementById("page-footer").appendChild(getSlashNode());
     var aNode = document.createElement('a');
     aNode.innerHTML = 'Wiki on Danbooru';
-    aNode.setAttribute('href', window.location.toString().replace('dbooru.noirscape.dev', 'danbooru.donmai.us'));
+    aNode.setAttribute('href', window.location.toString().replace(window.location.hostname, gmcfg.get('booruDomain')));
     document.getElementById("page-footer").appendChild(aNode);
 }
 
@@ -58,7 +81,7 @@ function CreateBURPost(aEvent) {
         if (burString) {
             var url = new URL(`https://${windowURL.hostname}/bulk_update_requests/new`);
             url.search = new URLSearchParams({
-                'bulk_update_request[forum_topic_id]': '5',
+                'bulk_update_request[forum_topic_id]': gmcfg.get('booruDomain'),
                 'bulk_update_request[script]': burString,
                 'bulk_update_request[reason]': `Automated BUR creation through userscript based on post:\n\n* !post #${post_json.id}`
             });

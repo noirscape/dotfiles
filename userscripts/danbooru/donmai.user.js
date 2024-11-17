@@ -1,10 +1,10 @@
 // ==UserScript==
-// @name         Danbooru support script (wiki pages)
-// @version      13
+// @name         Danbooru support script (2selfhosted)
+// @version      14
 // @match        *://danbooru.donmai.us/*
 // @grant        GM.xmlHttpRequest
 // @require      https://openuserjs.org/src/libs/sizzle/GM_config.js
-// @require      https://raw.githubusercontent.com/noirscape/dotfiles/refs/heads/master/userscripts/danbooru/common.js?v=13
+// @require      https://raw.githubusercontent.com/noirscape/dotfiles/refs/heads/master/userscripts/danbooru/common.js?v=14
 // @grant        GM_getValue
 // @grant        GM_setValue
 // @grant        GM.getValue
@@ -21,7 +21,7 @@ var gmcfg = new GM_config({
       "booruDomain": {
           'label': 'Booru Domain',
           'type': 'text',
-          'default': 'https://danbooru.donmai.us/',
+          'default': '',
       },
       "burTopic": {
           'label': 'BUR Topic (0 to not use)',
