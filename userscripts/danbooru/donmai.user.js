@@ -9,6 +9,7 @@
 // @grant        GM_setValue
 // @grant        GM.getValue
 // @grant        GM.setValue
+// @grant        GM.registerMenuCommand
 // @author       noirscape <nope at nope dot com> (https://noirscape.dev)
 // @homepageURL  https://github.com/noirscape/dotfiles
 // ==/UserScript==
@@ -30,15 +31,13 @@ var gmcfg = new GM_config({
   }
 });
 gmcfg.init();
+GM.registerMenuCommand('Open support script settings', OpenConfig);
 
 // Footer logic
 if (window.location.pathname.startsWith('/wiki_pages')) {
     addFooterLink('Clone page', 'wikicloner', CreateBooruPage);
     addFooterLink('Clone BUR', 'burcloner', CreateBURPage);
 }
-
-// Config always goes last
-addFooterLink('⚙️', 'wikicloner-config', OpenConfig);
 
 function OpenConfig(aEvent) {
   gmcfg.open();

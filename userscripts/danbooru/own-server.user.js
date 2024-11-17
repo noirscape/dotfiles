@@ -1,7 +1,6 @@
 // ==UserScript==
 // @name	 Personal support script (wiki pages)
 // @version  6
-// @match    *://INSERT_DOMAIN/wiki_pages/*
 // @require  https://raw.githubusercontent.com/noirscape/dotfiles/refs/heads/master/userscripts/danbooru/common.js?v=6
 // @grant    GM.xmlHttpRequest
 // ==/UserScript==
