@@ -98,7 +98,7 @@ function CreateBURPage(aEvent) {
   const currentDomain = windowURL.hostname;
   const destinationDomain = new URL(gmcfg.get('booruDomain')).hostname;
 
-  parseBURfromTag([tagName], currentDomain, destinationDomain).then(burString => {
+  parseBURfromTags([tagName], currentDomain, destinationDomain).then(burString => {
       if (burString) {
           var url = new URL(`${gmcfg.get('booruDomain')}/bulk_update_requests/new`);
           url.search = new URLSearchParams({
