@@ -31,7 +31,11 @@ var gmcfg = new GM_config({
 });
 gmcfg.init();
 GM.registerMenuCommand('Open support script settings', OpenConfig);
-  
+
+function OpenConfig() {
+    gmcfg.open();
+}
+
 // Footer logic
 if (window.location.pathname.startsWith('/wiki_pages')) {
     document.getElementById("page-footer").appendChild(getSlashNode());

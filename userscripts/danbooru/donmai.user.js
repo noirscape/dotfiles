@@ -39,7 +39,7 @@ if (window.location.pathname.startsWith('/wiki_pages')) {
     addFooterLink('Clone BUR', 'burcloner', CreateBURPage);
 }
 
-function OpenConfig(aEvent) {
+function OpenConfig() {
   gmcfg.open();
 }
 
