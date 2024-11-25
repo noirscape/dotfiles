@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name         Danbooru support script (2selfhosted)
-// @version      15
+// @version      16
 // @match        *://danbooru.donmai.us/*
 // @grant        GM.xmlHttpRequest
 // @require      https://openuserjs.org/src/libs/sizzle/GM_config.js
-// @require      https://raw.githubusercontent.com/noirscape/dotfiles/refs/heads/master/userscripts/danbooru/common.js?v=15
+// @require      https://raw.githubusercontent.com/noirscape/dotfiles/refs/heads/master/userscripts/danbooru/common.js?v=16
 // @grant        GM_getValue
 // @grant        GM_setValue
 // @grant        GM.getValue
@@ -67,19 +67,21 @@ async function createBooruPageTask() {
   let url;
   if (!destData || failed) {
       url = new URL(`${gmcfg.get('booruDomain')}/wiki_pages/new`);
-      url.search = new URLSearchParams({
+      let searchParams = new URLSearchParams({
           'wiki_page[title]': jdata.title,
           'wiki_page[body]': jdata.body,
           'wiki_page[other_names_string]': jdata.other_names.join(' ')
-      });
-  } else {
+        });
+        url.hash = '#' + searchParams.toString();
+    } else {
       url = new URL(`${gmcfg.get('booruDomain')}/wiki_pages/${destData.id}/edit`);
-      url.search = new URLSearchParams({
+      let searchParams = new URLSearchParams({
           'wiki_page[title]': jdata.title,
           'wiki_page[body]': jdata.body,
           'wiki_page[other_names_string]': jdata.other_names.join(' ')
       });
       // search parms will have to be filled by a receiving userscript.
+      url.hash = '#' + searchParams.toString();
   }
 
   return url;

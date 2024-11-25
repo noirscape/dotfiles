@@ -35,6 +35,12 @@ function getSlashNode() {
     return slashNode;
 }
 
+function getSubNavSeparator() {
+    var subNavNode = document.createElement('li');
+    subNavNode.innerHTML = '|';
+    return subNavNode;
+}
+
 // This function is used to add a link to the footer of a page.
 // arguments:
 // - text: the text to display in the link
@@ -49,6 +55,22 @@ function addFooterLink(text, css_id, listener) {
   document.getElementById(css_id).addEventListener(
     "click", listener, false
   );
+}
+
+function addSubNavSeparator() {
+    document.getElementById("subnav-menu").appendChild(getSubNavSeparator());
+}
+
+function addSubNavLink(text, css_id, text, listener) {
+    var liNode = document.createElement('li');
+    var aNode = document.createElement('a');
+    aNode.innerHTML = text;
+    aNode.setAttribute('id', css_id);
+    liNode.appendChild(aNode);
+    document.getElementById("subnav-menu").appendChild(liNode);
+    document.getElementById(css_id).addEventListener(
+        "click", listener, false
+    );
 }
 
 function setupPostToolbox() {
@@ -182,4 +204,12 @@ async function parseBURfromTags(tagNames, sourceDomain, destinationDomain) {
     }
 
     return burString;
+}
+
+// BUR Redirect link
+function OpenBURForPost(tag, topic) {
+    let windowURL = new URL(window.location);
+    windowURL.search = '';
+    windowURL.pathname = '/bur/new';
+    window.location = windowURL;
 }

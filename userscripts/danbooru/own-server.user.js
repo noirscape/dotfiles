@@ -1,13 +1,14 @@
 // ==UserScript==
 // @name	 Personal support script (2selfhosted)
-// @version  9
-// @require  https://raw.githubusercontent.com/noirscape/dotfiles/refs/heads/master/userscripts/danbooru/common.js?v=9
+// @version  10
+// @require  https://raw.githubusercontent.com/noirscape/dotfiles/refs/heads/master/userscripts/danbooru/common.js?v=10
 // @require  https://openuserjs.org/src/libs/sizzle/GM_config.js
 // @match    *://userconfigured.invalid/*
 // @grant    GM_getValue
 // @grant    GM_setValue
 // @grant    GM.getValue
 // @grant    GM.setValue
+// @grant    GM.listValues
 // @grant    GM.xmlHttpRequest
 // @grant    GM.registerMenuCommand
 // ==/UserScript==
@@ -48,6 +49,10 @@ function onInit() {
         aNode.innerHTML = 'Wiki on Danbooru';
         aNode.setAttribute('href', window.location.toString().replace(window.location.hostname, gmcfg.get('booruDomain')));
         document.getElementById("page-footer").appendChild(aNode);
+
+        // add elements to submenu
+        addSubNavSeparator();
+        addSubNavLink('New BUR', 'new-tag-bur', 'Create a new BUR', OpenBURForPost);
     }
 
     // Post page logic
@@ -146,9 +151,10 @@ function CreateBURPost(aEvent) {
 };
 
 // This is some receiver code for my wiki page copier.
-function fillFieldFromGetParam(node_name, get_param_name) {
-    let queryString = window.location.search;
+function fillFieldFromHashParam(node_name, get_param_name) {
+    let queryString = window.location.hash.substring(1);;
     let urlParams = new URLSearchParams(queryString);
+    console.log(urlParams);
 
     let paramValue = urlParams.get(get_param_name);
 
@@ -161,11 +167,55 @@ function fillFieldFromGetParam(node_name, get_param_name) {
     }
 }
 
-if (/^\/wiki_pages\/\d+\/edit$/.test(window.location.pathname)) {
-    let titleFilled = fillFieldFromGetParam("wiki_page_title", "wiki_page[title]");
-    let bodyFilled = fillFieldFromGetParam("wiki_page_body", "wiki_page[body]");
-    let otherNamesFilled = fillFieldFromGetParam("wiki_page_other_names_string", "wiki_page[other_names_string]");
+if (/^\/wiki_pages\/(\d+\/edit|new)$/.test(window.location.pathname)) {
+    let titleFilled = fillFieldFromHashParam("wiki_page_title", "wiki_page[title]");
+    console.log('filled title: ' + titleFilled);
+    let bodyFilled = fillFieldFromHashParam("wiki_page_body", "wiki_page[body]");
+    console.log('filled body: ' + bodyFilled);
+    let otherNamesFilled = fillFieldFromHashParam("wiki_page_other_names_string", "wiki_page[other_names_string]");
+    console.log('filled other names: ' + otherNamesFilled);
     if (titleFilled || bodyFilled || otherNamesFilled) {
         document.getElementById('wiki_page_is_deleted').checked = false;
     }
+}
+
+if (/^\/uploads\/\d+\/assets$/.test(window.location.pathname)) {
+    AssetListPage();
+}
+
+async function AssetListPage() {
+    let tagHTML = '<tr><th>Shared tags</th><td style="width: 100%"><div class="input fixed-width-container"><textarea data-autocomplete="tag-edit" class="text optional ui-autocomplete-input" autocomplete="off" id="shared-tag-textbox" style="width: 100%;"></textarea></div></td></tr><tr><th>Parent</th><td><div><input id="shared-tag-parent" class="string optional"></div><div><a id="save-asset-tags">Save</a></div></td></tr>';
+    let savedValue = await GM.getValue('SharedAssetTags', '{}');
+    let loadedValue = JSON.parse(savedValue);
+    let assetID = window.location.pathname.split('/')[2];
+    document.getElementsByClassName("source-data-content")[0].tBodies[0].insertAdjacentHTML("beforeend", tagHTML);
+
+    let tags = (loadedValue[assetID] && loadedValue[assetID].tags) || '';
+    let parent = (loadedValue[assetID] && loadedValue[assetID].parent) || '';
+    document.getElementById('shared-tag-textbox').value = tags;
+    document.getElementById('shared-tag-parent').value = parent;
+
+    window.eval('Danbooru.Autocomplete.initialize_all()');
+
+    document.getElementById('save-asset-tags').addEventListener('click', function() {
+        loadedValue[assetID] = {"tags": document.getElementById('shared-tag-textbox').value, "parent": document.getElementById('shared-tag-parent').value};
+        let jdata = JSON.stringify(loadedValue);
+        GM.setValue('SharedAssetTags', jdata);
+    });
+}
+
+if (/^\/uploads\/\d+\/assets\/\d+$/.test(window.location.pathname)) {
+    AssetDetailPage();
+}
+
+async function AssetDetailPage() {
+    let assetID = window.location.pathname.split('/')[2];
+    let tagString = document.getElementById('post_tag_string')
+    let parentInput = document.getElementById('post_parent_id');
+    let savedValue = await GM.getValue('SharedAssetTags', '{}');
+    let loadedValue = JSON.parse(savedValue);
+    let tags = (loadedValue[assetID] && loadedValue[assetID].tags) || '';
+    let parent = (loadedValue[assetID] && loadedValue[assetID].parent) || '';
+    tagString.value = tagString.value + ' ' + tags;
+    parentInput.value = parent;
 }
