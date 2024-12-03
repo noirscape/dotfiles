@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name         Danbooru support script (2selfhosted)
-// @version      16
+// @version      17
 // @match        *://danbooru.donmai.us/*
 // @grant        GM.xmlHttpRequest
 // @require      https://openuserjs.org/src/libs/sizzle/GM_config.js
-// @require      https://raw.githubusercontent.com/noirscape/dotfiles/refs/heads/master/userscripts/danbooru/common.js?v=16
+// @require      https://raw.githubusercontent.com/noirscape/dotfiles/refs/heads/master/userscripts/danbooru/common.js?v=17
 // @grant        GM_getValue
 // @grant        GM_setValue
 // @grant        GM.getValue

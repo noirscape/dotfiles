@@ -205,11 +205,3 @@ async function parseBURfromTags(tagNames, sourceDomain, destinationDomain) {
 
     return burString;
 }
-
-// BUR Redirect link
-function OpenBURForPost(tag, topic) {
-    let windowURL = new URL(window.location);
-    windowURL.search = '';
-    windowURL.pathname = '/bur/new';
-    window.location = windowURL;
-}

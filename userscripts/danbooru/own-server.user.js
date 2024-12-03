@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name	 Personal support script (2selfhosted)
-// @version  10
-// @require  https://raw.githubusercontent.com/noirscape/dotfiles/refs/heads/master/userscripts/danbooru/common.js?v=10
+// @version  11
+// @require  https://raw.githubusercontent.com/noirscape/dotfiles/refs/heads/master/userscripts/danbooru/common.js?v=11
 // @require  https://openuserjs.org/src/libs/sizzle/GM_config.js
 // @match    *://userconfigured.invalid/*
 // @grant    GM_getValue
@@ -52,7 +52,7 @@ function onInit() {
 
         // add elements to submenu
         addSubNavSeparator();
-        addSubNavLink('New BUR', 'new-tag-bur', 'Create a new BUR', OpenBURForPost);
+        addSubNavLink('New BUR', 'new-tag-bur', 'Create a new BUR', OpenBUR);
     }
 
     // Post page logic
@@ -66,6 +66,17 @@ function onInit() {
         let ulNode = setupPostToolbox();
         addPostToolboxLink(ulNode, 'burcloner', 'Create BUR for tags', CreateBURPostList);
     }
+
+    // Asset list logic
+    if (/^\/uploads\/\d+\/assets$/.test(window.location.pathname)) {
+        AssetListPage();
+    }
+
+    // Asset detail logic
+    if (/^\/uploads\/\d+\/assets\/\d+$/.test(window.location.pathname)) {
+        AssetDetailPage();
+    }
+    
 }
 
 async function createBURfromPostPage() {
@@ -179,15 +190,15 @@ if (/^\/wiki_pages\/(\d+\/edit|new)$/.test(window.location.pathname)) {
     }
 }
 
-if (/^\/uploads\/\d+\/assets$/.test(window.location.pathname)) {
-    AssetListPage();
-}
-
 async function AssetListPage() {
-    let tagHTML = '<tr><th>Shared tags</th><td style="width: 100%"><div class="input fixed-width-container"><textarea data-autocomplete="tag-edit" class="text optional ui-autocomplete-input" autocomplete="off" id="shared-tag-textbox" style="width: 100%;"></textarea></div></td></tr><tr><th>Parent</th><td><div><input id="shared-tag-parent" class="string optional"></div><div><a id="save-asset-tags">Save</a></div></td></tr>';
+    let tagHTML = '<tr><th>Shared tags</th><td style="width: 100%"><div class="input fixed-width-container"><textarea data-autocomplete="tag-edit" class="text optional ui-autocomplete-input" autocomplete="off" id="shared-tag-textbox" style="width: 100%;"></textarea></div></td></tr><tr><th>Parent</th><td><div><input id="shared-tag-parent" class="string optional"></div><div><a id="save-asset-tags">Save</a> | <a id="clear-asset-tags">Clear ALL stored tags</a></div></td></tr>';
     let savedValue = await GM.getValue('SharedAssetTags', '{}');
     let loadedValue = JSON.parse(savedValue);
     let assetID = window.location.pathname.split('/')[2];
+    if (document.getElementsByClassName("source-data").length == 0) {
+        let sourceDataBox = '<div class="source-data card-outlined p-4 mt-4 mb-4"><table class="source-data-content mt-2"><tbody></tbody></table></div>';
+        document.getElementById("a-index").querySelector("h1").insertAdjacentHTML("afterend", sourceDataBox);
+    }
     document.getElementsByClassName("source-data-content")[0].tBodies[0].insertAdjacentHTML("beforeend", tagHTML);
 
     let tags = (loadedValue[assetID] && loadedValue[assetID].tags) || '';
@@ -202,10 +213,10 @@ async function AssetListPage() {
         let jdata = JSON.stringify(loadedValue);
         GM.setValue('SharedAssetTags', jdata);
     });
-}
 
-if (/^\/uploads\/\d+\/assets\/\d+$/.test(window.location.pathname)) {
-    AssetDetailPage();
+    document.getElementById('clear-asset-tags').addEventListener('click', function() {
+        GM.setValue('SharedAssetTags', '{}');
+    });
 }
 
 async function AssetDetailPage() {
@@ -218,4 +229,16 @@ async function AssetDetailPage() {
     let parent = (loadedValue[assetID] && loadedValue[assetID].parent) || '';
     tagString.value = tagString.value + ' ' + tags;
     parentInput.value = parent;
+}
+
+// BUR Redirect link
+function OpenBUR() {
+    let windowURL = new URL(window.location);
+    windowURL.search = '';
+    windowURL.pathname = '/bulk_update_requests/new';
+    windowURL.search = new URLSearchParams({
+        'bulk_update_request[forum_topic_id]': gmcfg.get('burTopic'),
+        'bulk_update_request[reason]': '',
+    });
+    window.location = windowURL;
 }
