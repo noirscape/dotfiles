@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name	 Personal support script (2selfhosted)
-// @version  11
-// @require  https://raw.githubusercontent.com/noirscape/dotfiles/refs/heads/master/userscripts/danbooru/common.js?v=11
+// @version  12
+// @require  https://raw.githubusercontent.com/noirscape/dotfiles/refs/heads/master/userscripts/danbooru/common.js?v=12
 // @require  https://openuserjs.org/src/libs/sizzle/GM_config.js
 // @match    *://userconfigured.invalid/*
 // @grant    GM_getValue

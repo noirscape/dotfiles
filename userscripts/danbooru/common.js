@@ -163,6 +163,10 @@ async function parseBURfromTags(tagNames, sourceDomain, destinationDomain) {
             continue;
         }
 
+        if (implication.status == 'deleted') {
+            continue;
+        }
+
         for (const tag of existingTags) {
             if (implication.antecedent_name == tag) {
                 console.log("found implication for " + tag);
