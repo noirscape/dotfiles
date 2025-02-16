@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name     Pixiv Danbooru Support script
-// @version  1
+// @version  2
 // @match    *://*.pixiv.net/*
 // @grant    GM.xmlHttpRequest
 // @require  https://openuserjs.org/src/libs/sizzle/GM_config.js
@@ -118,7 +118,7 @@ function uploadImageToBooruRequest(images) {
 
 function getPixivAPIURL() {
   if (window.location.pathname.includes("artworks")) {
-    return "https://www.pixiv.net/ajax/illust/" + window.location.pathname.match(/artworks\/(\d+)/)[1];
+    return "https://www.pixiv.net/ajax/illust/" + window.location.pathname.match(/artworks\/(\d+)/)[1] + "/pages";
   }
 }
 
@@ -152,7 +152,8 @@ function OpenConfig() {
 
 async function UploadToBooru() {
   let apiInfo = await makeRequest(getPixivAPIURL());
-  let imageURLs = [apiInfo["body"]["urls"]["original"]];
+  let imageURLs = apiInfo["body"].map(url => url["urls"]["original"]);
+
   let images = [];
   console.log(imageURLs);
   for (const imageURL of imageURLs) {
