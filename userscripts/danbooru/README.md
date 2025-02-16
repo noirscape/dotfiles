@@ -10,3 +10,4 @@ If you want to use these scripts, observe the following notes:
 
 * `donmai.user.js` by default runs on the danbooru domain. This should be fine for most usecases.
 * `own-server.user.js` by default runs on *no* domains. You need to go into your userscript manager's settings ([Greasemonkey](https://wiki.greasespot.net/Greasemonkey_Manual:Monkey_Menu), I haven't tested with other managers) and *manually* add a grant for your domain. Then reload the page. The grant should be of the format `*://domainname.com/*`. Substitute domainname.com as needed (alternatively, `https://domainname.com/*` will ensure it works only on HTTPS connections).
+* `pixiv.user.js` is a helper script to extract images from Pixiv on the side of the client, as most VPS ranges are blocked by Pixiv.
