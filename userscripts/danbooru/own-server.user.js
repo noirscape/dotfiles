@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name	 Personal support script (2selfhosted)
-// @version  12
+// @version  13
 // @require  https://raw.githubusercontent.com/noirscape/dotfiles/refs/heads/master/userscripts/danbooru/common.js?v=12
 // @require  https://openuserjs.org/src/libs/sizzle/GM_config.js
 // @match    *://userconfigured.invalid/*
@@ -191,7 +191,7 @@ if (/^\/wiki_pages\/(\d+\/edit|new)$/.test(window.location.pathname)) {
 }
 
 async function AssetListPage() {
-    let tagHTML = '<tr><th>Shared tags</th><td style="width: 100%"><div class="input fixed-width-container"><textarea data-autocomplete="tag-edit" class="text optional ui-autocomplete-input" autocomplete="off" id="shared-tag-textbox" style="width: 100%;"></textarea></div></td></tr><tr><th>Parent</th><td><div><input id="shared-tag-parent" class="string optional"></div><div><a id="save-asset-tags">Save</a> | <a id="clear-asset-tags">Clear ALL stored tags</a></div></td></tr>';
+    let tagHTML = '<tr><th>Source</th><td style="width: 100%"><div class="input fixed-width-container"><textarea autocomplete="off" id="shared-tag-source" style="width: 100%;"></textarea></div></td></tr><tr><th>Shared tags</th><td style="width: 100%"><div class="input fixed-width-container"><textarea data-autocomplete="tag-edit" class="text optional ui-autocomplete-input" autocomplete="off" id="shared-tag-textbox" style="width: 100%;"></textarea></div></td></tr><tr><th>Parent</th><td><div><input id="shared-tag-parent" class="string optional"></div><div><a id="save-asset-tags">Save</a> | <a id="clear-asset-tags">Clear ALL stored tags</a></div></td></tr>';
     let savedValue = await GM.getValue('SharedAssetTags', '{}');
     let loadedValue = JSON.parse(savedValue);
     let assetID = window.location.pathname.split('/')[2];
@@ -201,15 +201,17 @@ async function AssetListPage() {
     }
     document.getElementsByClassName("source-data-content")[0].tBodies[0].insertAdjacentHTML("beforeend", tagHTML);
 
+    let source = (loadedValue[assetID] && loadedValue[assetID].source) || '';
     let tags = (loadedValue[assetID] && loadedValue[assetID].tags) || '';
     let parent = (loadedValue[assetID] && loadedValue[assetID].parent) || '';
     document.getElementById('shared-tag-textbox').value = tags;
     document.getElementById('shared-tag-parent').value = parent;
+    document.getElementById('shared-tag-source').value = source;
 
     window.eval('Danbooru.Autocomplete.initialize_all()');
 
     document.getElementById('save-asset-tags').addEventListener('click', function() {
-        loadedValue[assetID] = {"tags": document.getElementById('shared-tag-textbox').value, "parent": document.getElementById('shared-tag-parent').value};
+        loadedValue[assetID] = {"tags": document.getElementById('shared-tag-textbox').value, "parent": document.getElementById('shared-tag-parent').value, "source": document.getElementById('shared-tag-source').value};
         let jdata = JSON.stringify(loadedValue);
         GM.setValue('SharedAssetTags', jdata);
     });
@@ -223,12 +225,15 @@ async function AssetDetailPage() {
     let assetID = window.location.pathname.split('/')[2];
     let tagString = document.getElementById('post_tag_string')
     let parentInput = document.getElementById('post_parent_id');
+    let sourceInput = document.getElementById('post_source');
     let savedValue = await GM.getValue('SharedAssetTags', '{}');
     let loadedValue = JSON.parse(savedValue);
     let tags = (loadedValue[assetID] && loadedValue[assetID].tags) || '';
     let parent = (loadedValue[assetID] && loadedValue[assetID].parent) || '';
+    let source = (loadedValue[assetID] && loadedValue[assetID].source) || '';
     tagString.value = tagString.value + ' ' + tags;
     parentInput.value = parent;
+    sourceInput.value = source;
 }
 
 // BUR Redirect link
