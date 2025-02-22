@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name	 Personal support script (2selfhosted)
-// @version  13
+// @version  14
 // @require  https://raw.githubusercontent.com/noirscape/dotfiles/refs/heads/master/userscripts/danbooru/common.js?v=12
 // @require  https://openuserjs.org/src/libs/sizzle/GM_config.js
 // @match    *://userconfigured.invalid/*
@@ -233,7 +233,9 @@ async function AssetDetailPage() {
     let source = (loadedValue[assetID] && loadedValue[assetID].source) || '';
     tagString.value = tagString.value + ' ' + tags;
     parentInput.value = parent;
-    sourceInput.value = source;
+    if (source) {
+        sourceInput.value = source;
+    }
 }
 
 // BUR Redirect link
