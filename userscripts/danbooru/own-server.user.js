@@ -191,7 +191,13 @@ if (/^\/wiki_pages\/(\d+\/edit|new)$/.test(window.location.pathname)) {
 }
 
 async function AssetListPage() {
-    let tagHTML = '<tr><th>Source</th><td style="width: 100%"><div class="input fixed-width-container"><textarea autocomplete="off" id="shared-tag-source" style="width: 100%;"></textarea></div></td></tr><tr><th>Shared tags</th><td style="width: 100%"><div class="input fixed-width-container"><textarea data-autocomplete="tag-edit" class="text optional ui-autocomplete-input" autocomplete="off" id="shared-tag-textbox" style="width: 100%;"></textarea></div></td></tr><tr><th>Parent</th><td><div><input id="shared-tag-parent" class="string optional"></div><div><a id="save-asset-tags">Save</a> | <a id="clear-asset-tags">Clear ALL stored tags</a></div></td></tr>';
+    let sourceHTML = '<tr><th>Source</th><td style="width: 100%"><div class="input fixed-width-container"><textarea autocomplete="off" id="shared-tag-source" style="width: 100%;"></textarea></div></td></tr>'; 
+    let ratingHTML = '<style>span.rating-form {width: fit-content;border: 1px solid var(--default-border-color);border-radius: 4px;overflow: hidden;display: flex;line-height: 1.5em;flex-direction: row;flex-wrap: no-wrap;}span.rating-form input { display: none; }span.rating-form label {font-family: var(--body-font);font-size: var(--text-xs);padding: .025rem .33rem;border-color: var(--link-color);border-right: 1px solid var(--default-border-color);cursor: pointer;}span.rating-form label:last-of-type{ border-right: 0; }span.rating-form label:hover {background: var(--link-color);}span.rating-form input:checked + label{background: var(--link-color);}</style><tr><th>Rating</th><td><span style="display: flex; flex-direction: row; flex-wrap: no-wrap;"><span class="rating-form"><input type="radio" id="shared-tag-rating-e" name="shared-tag-rating" value="e"><label for="shared-tag-rating-e">Explicit</label><input type="radio" id="shared-tag-rating-q" name="shared-tag-rating" value="q"><label for="shared-tag-rating-q">Questionable</label><input type="radio" id="shared-tag-rating-s" name="shared-tag-rating" value="s"><label for="shared-tag-rating-s">Sensitive</label><input type="radio" id="shared-tag-rating-g" name="shared-tag-rating" value="g"><label for="shared-tag-rating-g">General</label></span><span>(<a id="clear-asset-rating">Clear</a>)</span></span></td></tr>';
+    let tagHTML = '<tr><th>Shared tags</th><td style="width: 100%"><div class="input fixed-width-container"><textarea data-autocomplete="tag-edit" class="text optional ui-autocomplete-input" autocomplete="off" id="shared-tag-textbox" style="width: 100%;"></textarea></div></td></tr>';
+    let parentHTML = '<tr><th>Parent</th><td><div><input id="shared-tag-parent" class="string optional"></div><div></tr>';
+    let saveHTML = '<tr><th></th><td><a id="save-asset-tags">Save</a> | <a id="clear-asset-tags">Clear ALL stored tags</a></div></td></tr>';
+    let fullHTML = sourceHTML + ratingHTML + tagHTML + parentHTML + saveHTML;
+
     let savedValue = await GM.getValue('SharedAssetTags', '{}');
     let loadedValue = JSON.parse(savedValue);
     let assetID = window.location.pathname.split('/')[2];
@@ -199,19 +205,28 @@ async function AssetListPage() {
         let sourceDataBox = '<div class="source-data card-outlined p-4 mt-4 mb-4"><table class="source-data-content mt-2"><tbody></tbody></table></div>';
         document.getElementById("a-index").querySelector("h1").insertAdjacentHTML("afterend", sourceDataBox);
     }
-    document.getElementsByClassName("source-data-content")[0].tBodies[0].insertAdjacentHTML("beforeend", tagHTML);
+    document.getElementsByClassName("source-data-content")[0].tBodies[0].insertAdjacentHTML("beforeend", fullHTML);
 
     let source = (loadedValue[assetID] && loadedValue[assetID].source) || '';
     let tags = (loadedValue[assetID] && loadedValue[assetID].tags) || '';
     let parent = (loadedValue[assetID] && loadedValue[assetID].parent) || '';
+    let rating = (loadedValue[assetID] && loadedValue[assetID].rating) || '';
     document.getElementById('shared-tag-textbox').value = tags;
     document.getElementById('shared-tag-parent').value = parent;
     document.getElementById('shared-tag-source').value = source;
+    if (rating) {
+        document.getElementById('shared-tag-rating-' + rating).checked = true;
+    }
 
     window.eval('Danbooru.Autocomplete.initialize_all()');
 
+    document.getElementById('clear-asset-rating').addEventListener('click', function() {
+        document.querySelectorAll('input[name="shared-tag-rating"]').forEach((el) => { el.checked = false; });
+    });
+
     document.getElementById('save-asset-tags').addEventListener('click', function() {
-        loadedValue[assetID] = {"tags": document.getElementById('shared-tag-textbox').value, "parent": document.getElementById('shared-tag-parent').value, "source": document.getElementById('shared-tag-source').value};
+        let ratingItem = document.querySelector('input[name="shared-tag-rating"]:checked');
+        loadedValue[assetID] = {"tags": document.getElementById('shared-tag-textbox').value, "parent": document.getElementById('shared-tag-parent').value, "source": document.getElementById('shared-tag-source').value, "rating": ratingItem ? ratingItem.value : ''};
         let jdata = JSON.stringify(loadedValue);
         GM.setValue('SharedAssetTags', jdata);
     });
@@ -231,10 +246,14 @@ async function AssetDetailPage() {
     let tags = (loadedValue[assetID] && loadedValue[assetID].tags) || '';
     let parent = (loadedValue[assetID] && loadedValue[assetID].parent) || '';
     let source = (loadedValue[assetID] && loadedValue[assetID].source) || '';
+    let rating = (loadedValue[assetID] && loadedValue[assetID].rating) || '';
     tagString.value = tagString.value + ' ' + tags;
     parentInput.value = parent;
     if (source) {
         sourceInput.value = source;
+    }
+    if (rating) {
+        document.getElementById('post_rating_' + rating).checked = true;
     }
 }
 
