@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name     Pixiv Danbooru Support script
-// @version  2
+// @version  3
 // @match    *://*.pixiv.net/*
 // @grant    GM.xmlHttpRequest
 // @require  https://openuserjs.org/src/libs/sizzle/GM_config.js
@@ -122,6 +122,40 @@ function getPixivAPIURL() {
   }
 }
 
+
+function setPageHTMLToSpinner() {
+    let css_text = `.loader {
+  border: 16px solid #f3f3f3; /* Light grey */
+  border-top: 16px solid #3498db; /* Blue */
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  animation: spin 2s linear infinite;
+}
+
+.outer-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}`
+    let htmlText = `<div class="outer-center"><div class="loader"></div><span id="text-element"></span></div>`
+    document.body.innerHTML = '<style>' + css_text + '</style>' + htmlText;
+}
+
+function setSpinnerText(text) {
+    document.getElementById("text-element").innerText = text;
+}
+
 var gmcfg = new GM_config({
   "id": "PixivDanbooruSupport",
   "title": "Pixiv Danbooru Support Script",
@@ -151,16 +185,21 @@ function OpenConfig() {
 }
 
 async function UploadToBooru() {
+  setPageHTMLToSpinner();
+  setSpinnerText("Fetching Pixiv API data...");
   let apiInfo = await makeRequest(getPixivAPIURL());
   let imageURLs = apiInfo["body"].map(url => url["urls"]["original"]);
 
   let images = [];
   console.log(imageURLs);
+  setSpinnerText("Fetching images from Pixiv...");
   for (const imageURL of imageURLs) {
-    image = await makePixivImageRequest(imageURL);
+    setSpinnerText(`Fetching image ${images.length + 1}/${imageURLs.length}`);
+    let image = await makePixivImageRequest(imageURL);
     images.push(image);
   }
   console.log(images);
+  setSpinnerText("Uploading images to Booru...");
   let resp = await uploadImageToBooruRequest(images);
   console.log(resp);
   window.location = `${gmcfg.get('booruDomain')}/uploads/${resp["id"]}?post[source]=${window.location}`;
