@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name     Pixiv Danbooru Support script
-// @version  3
+// @version  4
 // @match    *://*.pixiv.net/*
 // @grant    GM.xmlHttpRequest
 // @require  https://openuserjs.org/src/libs/sizzle/GM_config.js
@@ -186,21 +186,26 @@ function OpenConfig() {
 
 async function UploadToBooru() {
   setPageHTMLToSpinner();
-  setSpinnerText("Fetching Pixiv API data...");
-  let apiInfo = await makeRequest(getPixivAPIURL());
-  let imageURLs = apiInfo["body"].map(url => url["urls"]["original"]);
-
-  let images = [];
-  console.log(imageURLs);
-  setSpinnerText("Fetching images from Pixiv...");
-  for (const imageURL of imageURLs) {
-    setSpinnerText(`Fetching image ${images.length + 1}/${imageURLs.length}`);
-    let image = await makePixivImageRequest(imageURL);
-    images.push(image);
+  try {
+    setSpinnerText("Fetching Pixiv API data...");
+    let apiInfo = await makeRequest(getPixivAPIURL());
+    let imageURLs = apiInfo["body"].map(url => url["urls"]["original"]);
+  
+    let images = [];
+    console.log(imageURLs);
+    setSpinnerText("Fetching images from Pixiv...");
+    for (const imageURL of imageURLs) {
+      setSpinnerText(`Fetching image ${images.length + 1}/${imageURLs.length}`);
+      let image = await makePixivImageRequest(imageURL);
+      images.push(image);
+    }
+    console.log(images);
+    setSpinnerText("Uploading images to Booru...");
+    let resp = await uploadImageToBooruRequest(images);
+    console.log(resp);
+    window.location = `${gmcfg.get('booruDomain')}/uploads/${resp["id"]}?post[source]=${window.location}`;  
+  } catch (err) {
+    console.error(err);
+    setSpinnerText("An error of type " + err.name + " occurred: " + err.message);
   }
-  console.log(images);
-  setSpinnerText("Uploading images to Booru...");
-  let resp = await uploadImageToBooruRequest(images);
-  console.log(resp);
-  window.location = `${gmcfg.get('booruDomain')}/uploads/${resp["id"]}?post[source]=${window.location}`;
 }
