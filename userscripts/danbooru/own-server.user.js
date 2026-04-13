@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name	 Personal support script (2selfhosted)
-// @version  14
+// @version  15
 // @require  https://raw.githubusercontent.com/noirscape/dotfiles/refs/heads/master/userscripts/danbooru/common.js?v=12
 // @require  https://openuserjs.org/src/libs/sizzle/GM_config.js
 // @match    *://userconfigured.invalid/*
@@ -217,8 +217,6 @@ async function AssetListPage() {
     if (rating) {
         document.getElementById('shared-tag-rating-' + rating).checked = true;
     }
-
-    window.eval('Danbooru.Autocomplete.initialize_all()');
 
     document.getElementById('clear-asset-rating').addEventListener('click', function() {
         document.querySelectorAll('input[name="shared-tag-rating"]').forEach((el) => { el.checked = false; });
