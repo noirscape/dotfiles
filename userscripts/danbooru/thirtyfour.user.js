@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name     Thirtyfour Danbooru Support script
-// @version  2
+// @version  3
 // @match    *://*.rule34.xxx/*id=*
 // @grant    GM.xmlHttpRequest
 // @require  https://openuserjs.org/src/libs/sizzle/GM_config.js
@@ -194,6 +194,7 @@ async function UploadToBooru() {
     console.log(apiInfo);
     let imageURL = apiInfo[0]["file_url"];
     let tags = apiInfo[0]["tags"];
+    let source = apiInfo[0]["source"];
   
     console.log(imageURL);
     setSpinnerText(`Fetching image from R34...`);
@@ -202,7 +203,7 @@ async function UploadToBooru() {
     setSpinnerText("Uploading image to Booru...");
     let resp = await uploadImageToBooruRequest(image);
     console.log(resp);
-    window.location = `${gmcfg.get('booruDomain')}/uploads/${resp["id"]}?post[source]=${window.location}&post[tag_string]=${tags}`;  
+    window.location = `${gmcfg.get('booruDomain')}/uploads/${resp["id"]}?post[source]=${source}&post[tag_string]=${tags}`;  
   } catch (err) {
     console.error(err);
     setSpinnerText("An error of type " + err.name + " occurred: " + err.message);
